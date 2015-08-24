@@ -2,7 +2,7 @@
 
 return [
     '@import' => [
-        '@/database.php',
-        '@/routing.php'
+        'database.php',
+        'routing.php'
     ]
 ];

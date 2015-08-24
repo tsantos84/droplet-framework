@@ -2,7 +2,7 @@
 
 return [
 
-    '@import' => '@/config_prod.php',
+    '@import' => 'config_prod.php',
 
     'database' => [
         'dbname' => 'myapp_dev'

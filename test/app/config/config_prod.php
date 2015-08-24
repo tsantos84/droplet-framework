@@ -1,5 +1,5 @@
 <?php
 
 return [
-    '@import' => '@/config.php'
+    '@import' => 'config.php'
 ];
