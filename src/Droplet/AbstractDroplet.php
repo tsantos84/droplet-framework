@@ -41,6 +41,13 @@ abstract class AbstractDroplet implements DropletInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getConfigTreeBuilder()
+    {
+    }
+
+    /**
      * @param Container       $container
      * @param ConfigurationInterface $config
      */

@@ -21,6 +21,11 @@ interface DropletInterface extends SfConfiguration
     public function setApplication(Application $application);
 
     /**
+     * @return Application
+     */
+    public function getApplication();
+
+    /**
      * @param ConfigurationInterface $config
      *
      * @return mixed

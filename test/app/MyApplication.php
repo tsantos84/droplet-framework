@@ -1,7 +1,7 @@
 <?php
 
 use Framework\Application;
-use Framework\Droplet\CoreDroplet;
+use Framework\Droplet\Core\CoreDroplet;
 
 /**
  * Class MyApplication
