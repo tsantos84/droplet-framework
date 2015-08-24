@@ -79,52 +79,11 @@ class CoreDroplet extends AbstractDroplet
             return new EventDispatcher();
         };
 
-        $container['routes'] = function () use ($config) {
-
-            $routes = new RouteCollection();
-
-            foreach ($config['routing']->toArray() as $name => $value) {
-                $route = new Route(
-                    $value['path'],
-                    $value['defaults']
-//                    $value['requirements'],
-//                    $value['options'],
-//                    $value['host'],
-//                    $value['schemes'],
-//                    $value['methods'],
-//                    $value['conditions']
-                );
-                $routes->add($name, $route);
-            }
-
-            return $routes;
-        };
-
-        $container['request_context'] = function () {
-            return new RequestContext();
-        };
-
-        $container['url_matcher'] = function($c) {
-            return new UrlMatcher($c['routes'], $c['request_context']);
-        };
-
-        $container['controller_resolver'] = function() {
-            return new ControllerResolver();
-        };
-
         $container['kernel'] = function($c) {
             return new HttpKernel($c['event_dispatcher'], $c['controller_resolver']);
         };
 
-        $container->extend('event_dispatcher', function(EventDispatcherInterface $dispatcher, $c) {
-            $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($c) {
-                $request = $ev->getRequest();
-                $attribs = $c['url_matcher']->match($request->getPathInfo());
-                $request->attributes->add($attribs);
-            });
-
-            return $dispatcher;
-        });
+        $this->configureRouting($container, $config);
     }
 
     /**
@@ -212,5 +171,52 @@ class CoreDroplet extends AbstractDroplet
             ->end();
 
         return $rootNode;
+    }
+
+    private function configureRouting(Container $container, ConfigInterface $config)
+    {
+        $container['routes'] = function () use ($config) {
+
+            $routes = new RouteCollection();
+
+            foreach ($config['routing']->toArray() as $name => $value) {
+                $route = new Route(
+                    $value['path'],
+                    $value['defaults']
+//                    $value['requirements'],
+//                    $value['options'],
+//                    $value['host'],
+//                    $value['schemes'],
+//                    $value['methods'],
+//                    $value['conditions']
+                );
+                $routes->add($name, $route);
+            }
+
+            return $routes;
+        };
+
+        $container['request_context'] = function () {
+            return new RequestContext();
+        };
+
+        $container['url_matcher'] = function($c) {
+            return new UrlMatcher($c['routes'], $c['request_context']);
+        };
+
+        $container['controller_resolver'] = function() {
+            return new ControllerResolver();
+        };
+
+        $container->extend('event_dispatcher', function(EventDispatcherInterface $dispatcher, $c) {
+
+            $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($c) {
+                $request = $ev->getRequest();
+                $attribs = $c['url_matcher']->match($request->getPathInfo());
+                $request->attributes->add($attribs);
+            });
+
+            return $dispatcher;
+        });
     }
 }

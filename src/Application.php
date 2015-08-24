@@ -110,7 +110,7 @@ class Application implements HttpKernelInterface
     }
 
     /**
-     * @return ExtensionInterface[]
+     * @return DropletInterface[]
      */
     public function getDroplets()
     {
