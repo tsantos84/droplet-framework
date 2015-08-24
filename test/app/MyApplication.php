@@ -1,7 +1,7 @@
 <?php
 
-use Droplet\Application;
-
+use Framework\Application;
+use Framework\Droplet\CoreDroplet;
 
 /**
  * Class MyApplication
@@ -13,6 +13,6 @@ class MyApplication extends Application
      */
     public function registerDroplets()
     {
-        $this->registerDroplet(new \Droplet\Core\CoreDroplet());
+        $this->registerDroplet(new CoreDroplet());
     }
 }

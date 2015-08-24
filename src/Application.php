@@ -1,9 +1,10 @@
 <?php
 
-namespace Droplet;
+namespace Framework;
 
-use Droplet\Config\Configuration;
-use Droplet\Config\ConfigurationInterface;
+use Framework\Config\Configuration;
+use Framework\Config\ConfigurationInterface;
+use Framework\Droplet\DropletInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\Request;

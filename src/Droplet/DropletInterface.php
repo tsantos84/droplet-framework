@@ -1,8 +1,9 @@
 <?php
 
-namespace Droplet;
+namespace Framework\Droplet;
 
-use Droplet\Config\ConfigurationInterface;
+use Framework\Application;
+use Framework\Config\ConfigurationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\ConfigurationInterface as SfConfiguration;
 

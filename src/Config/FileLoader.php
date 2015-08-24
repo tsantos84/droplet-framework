@@ -1,6 +1,6 @@
 <?php
 
-namespace Droplet\Config;
+namespace Framework\Config;
 
 use Symfony\Component\Config\Loader\FileLoader as BaseFileLoader;
 

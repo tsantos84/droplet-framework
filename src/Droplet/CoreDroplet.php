@@ -1,9 +1,8 @@
 <?php
 
-namespace Droplet\Core;
+namespace Framework\Droplet;
 
-use Droplet\AbstractDroplet;
-use Droplet\Config\ConfigurationInterface;
+use Framework\Config\ConfigurationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
