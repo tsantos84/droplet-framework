@@ -1,0 +1,24 @@
+{
+  "name": "tsantos/bubble-framework",
+  "description": "Lightweight and extensible PHP framework for small projects",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tales Santos",
+      "email": "tales.augusto.santos@gmail.com"
+    }
+  ],
+  "autoload" : {
+    "psr-4" : {
+      "Droplet\\" : "src/",
+      "" : "test/src/"
+    }
+  },
+  "require": {
+    "symfony/http-kernel": "^3.0@dev",
+    "pimple/pimple": "~3.0",
+    "symfony/config": "^3.0@dev",
+    "symfony/routing": "^3.0@dev"
+  }
+}
