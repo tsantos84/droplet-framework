@@ -3,10 +3,10 @@
 namespace Droplet\Config;
 
 /**
- * Class Config
+ * Class Configuration
  * @package Max\Component
  */
-class Config implements ConfigInterface
+class Configuration implements ConfigurationInterface
 {
     /**
      * @var
@@ -227,7 +227,7 @@ class Config implements ConfigInterface
         }
 
         $expected = [
-            'array', 'ArrayObject', 'Max\\Component\\Config'
+            'array', 'ArrayObject', 'Max\\Component\\Configuration'
         ];
 
         throw new \InvalidArgumentException(sprintf(

@@ -6,7 +6,7 @@ use Symfony\Component\Config\Loader\FileLoader as BaseFileLoader;
 
 /**
  * Class FileLoader
- * @package Droplet\Config
+ * @package Droplet\Configuration
  */
 class FileLoader extends BaseFileLoader
 {

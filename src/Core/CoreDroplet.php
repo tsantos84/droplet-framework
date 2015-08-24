@@ -3,7 +3,7 @@
 namespace Droplet\Core;
 
 use Droplet\AbstractDroplet;
-use Droplet\Config\ConfigInterface;
+use Droplet\Config\ConfigurationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -27,7 +27,7 @@ class CoreDroplet extends AbstractDroplet
     /**
      * @inheritDoc
      */
-    public function loadConfiguration(ConfigInterface $config)
+    public function loadConfiguration(ConfigurationInterface $config)
     {
         return [
             'database' => [
@@ -68,7 +68,7 @@ class CoreDroplet extends AbstractDroplet
     /**
      * @inheritDoc
      */
-    public function buildContainer(Container $container, ConfigInterface $config)
+    public function buildContainer(Container $container, ConfigurationInterface $config)
     {
         // set the parameters in the container
         foreach ($config['parameters'] as $name => $val) {
@@ -173,7 +173,7 @@ class CoreDroplet extends AbstractDroplet
         return $rootNode;
     }
 
-    private function configureRouting(Container $container, ConfigInterface $config)
+    private function configureRouting(Container $container, ConfigurationInterface $config)
     {
         $container['routes'] = function () use ($config) {
 

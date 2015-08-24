@@ -6,7 +6,7 @@ namespace Droplet\Config;
  * Class ConfigurationInterface
  * @package Max\Component\Configuration
  */
-interface ConfigInterface extends \ArrayAccess
+interface ConfigurationInterface extends \ArrayAccess
 {
     public function import($file);
 

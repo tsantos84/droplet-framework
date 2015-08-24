@@ -2,7 +2,7 @@
 
 namespace Droplet;
 
-use Droplet\Config\ConfigInterface;
+use Droplet\Config\ConfigurationInterface;
 use Pimple\Container;
 
 /**
@@ -35,15 +35,15 @@ abstract class AbstractDroplet implements DropletInterface
     /**
      * @inheritDoc
      */
-    public function loadConfiguration(ConfigInterface $config)
+    public function loadConfiguration(ConfigurationInterface $config)
     {
     }
 
     /**
      * @param Container       $container
-     * @param ConfigInterface $config
+     * @param ConfigurationInterface $config
      */
-    public function buildContainer(Container $container, ConfigInterface $config)
+    public function buildContainer(Container $container, ConfigurationInterface $config)
     {
     }
 

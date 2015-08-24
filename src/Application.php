@@ -2,8 +2,8 @@
 
 namespace Droplet;
 
-use Droplet\Config\Config;
-use Droplet\Config\ConfigInterface;
+use Droplet\Config\Configuration;
+use Droplet\Config\ConfigurationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ class Application implements HttpKernelInterface
     private $droplets;
 
     /**
-     * @var ConfigInterface
+     * @var ConfigurationInterface
      */
     private $configuration;
 
@@ -147,13 +147,13 @@ class Application implements HttpKernelInterface
     }
 
     /**
-     * @return ConfigInterface
+     * @return ConfigurationInterface
      */
     public function getConfiguration()
     {
         if (null === $this->configuration) {
 
-            $this->configuration = new Config();
+            $this->configuration = new Configuration();
 
             $processor = new Processor();
 
