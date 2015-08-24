@@ -1,6 +1,7 @@
 <?php
 
 namespace Framework\Config;
+use Symfony\Component\Config\FileLocator;
 
 /**
  * Class Configuration
@@ -19,7 +20,6 @@ class Configuration implements ConfigurationInterface
     public function __construct(array $config = [])
     {
         $this->config = $config;
-        $this->import($this->getImports($config));
     }
 
     /**
@@ -29,8 +29,8 @@ class Configuration implements ConfigurationInterface
      */
     static public function load($file)
     {
-        $config = new static();
-        $config->import($file);
+        $loader = new FileLoader(new FileLocator(dirname($file)));
+        $config = new static($loader->load($file));
 
         return $config;
     }
@@ -52,22 +52,9 @@ class Configuration implements ConfigurationInterface
     {
         $configs = func_get_args();
         foreach ($configs as $config) {
-            $config       = $this->extractArray($config);
+            $config       = $config instanceof self ? $config->toArray() : (array)$config;
             $this->config = array_replace_recursive($this->config, $config);
         }
-
-        return $this;
-    }
-
-    /**
-     * @param $file
-     *
-     * @return $this
-     */
-    public function import($file)
-    {
-        $config = $this->importFile($file);
-        $this->merge($config);
 
         return $this;
     }
@@ -159,101 +146,6 @@ class Configuration implements ConfigurationInterface
         }
 
         $this->throwOptionNotExists($offset);
-    }
-
-    /**
-     * @param      $file
-     *
-     * @param null $from
-     *
-     * @return array
-     */
-    private function importFile($file, $from = null)
-    {
-        $files  = (array)$file;
-        $config = [];
-
-        foreach ($files as $file) {
-
-            if ($file[0] == '@') {
-                if (is_string($from)) {
-                    $file = dirname($from) . substr($file, 1);
-                }
-            }
-
-            if (is_file($file)) {
-                $config  = $this->extractArray(require $file);
-                $imports = $this->getImports($config);
-                $config  = array_replace_recursive($this->importFile($imports, $file), $config);
-            } else {
-                throw new \InvalidArgumentException('Cant import the file "' . $file . '" as it was not found');
-            }
-        }
-
-        return $config;
-    }
-
-    /**
-     * @param array $config
-     *
-     * @return array
-     */
-    private function getImports(array &$config)
-    {
-        $files = [];
-
-        if (isset($config['@import'])) {
-            $files = (array)$config['@import'];
-            unset($config['@import']);
-        }
-
-        return $files;
-    }
-
-    /**
-     * @param $subject
-     *
-     * @return array
-     */
-    private function extractArray($subject)
-    {
-        switch (true) {
-            case is_array($subject):
-                return $subject;
-            case $subject instanceof \ArrayObject:
-                return $subject->getArrayCopy();
-            case $subject instanceof self:
-                return $subject->toArray();
-        }
-
-        $expected = [
-            'array', 'ArrayObject', 'Max\\Component\\Configuration'
-        ];
-
-        throw new \InvalidArgumentException(sprintf(
-            'Cant extract the array as the expected types are %s, but %s given',
-            join(', ', $expected),
-            $this->getVarType($subject)
-        ));
-    }
-
-    /**
-     * @param $subject
-     *
-     * @return string
-     */
-    private function getVarType($subject)
-    {
-        switch ($subject) {
-            case is_object($subject):
-                return 'instance of ' . get_class($subject);
-            case is_string($subject):
-                return 'string';
-            case is_numeric($subject):
-                return 'numeric';
-            default:
-                return 'unknown type';
-        }
     }
 
     /**

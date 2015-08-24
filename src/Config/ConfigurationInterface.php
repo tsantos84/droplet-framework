@@ -8,8 +8,6 @@ namespace Framework\Config;
  */
 interface ConfigurationInterface extends \ArrayAccess
 {
-    public function import($file);
-
     public function merge($config);
 
     public function toArray();

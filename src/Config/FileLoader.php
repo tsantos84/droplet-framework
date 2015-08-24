@@ -15,7 +15,16 @@ class FileLoader extends BaseFileLoader
      */
     public function load($resource, $type = null)
     {
-        $config = require $resource;
+        $file    = $this->locator->locate($resource);
+        $config  = $this->getConfiguration($file);
+        $imports = $this->getImports($config);
+        $this->setCurrentDir(dirname($file));
+
+        foreach ($imports as $import) {
+            $config = array_replace_recursive($this->import($import), $config);
+        }
+
+        return $config;
     }
 
     /**
@@ -26,4 +35,31 @@ class FileLoader extends BaseFileLoader
         return is_string($resource) && 'php' === pathinfo($resource, PATHINFO_EXTENSION);
     }
 
+    private function getConfiguration($resource)
+    {
+        $config = include $resource;
+
+        if (!is_array($config)) {
+            throw new \InvalidArgumentException('The configuration file "' . $resource . '" must return an array');
+        }
+
+        return $config;
+    }
+
+    private function getImports(array &$config)
+    {
+        if (array_key_exists('@import', $config)) {
+            $imports = $config['@import'];
+
+            if (!is_array($imports)) {
+                $imports = [$imports];
+            }
+
+            unset($config['@import']);
+
+            return $imports;
+        }
+
+        return [];
+    }
 }
