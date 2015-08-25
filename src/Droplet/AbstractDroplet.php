@@ -48,10 +48,9 @@ abstract class AbstractDroplet implements DropletInterface
     }
 
     /**
-     * @param Container       $container
-     * @param ConfigurationInterface $config
+     * @inheritdoc
      */
-    public function buildContainer(Container $container, ConfigurationInterface $config)
+    public function buildContainer(array $configs, Container $container)
     {
     }
 

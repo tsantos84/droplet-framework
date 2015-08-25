@@ -33,12 +33,10 @@ interface DropletInterface extends SfConfiguration
     public function loadConfiguration(ConfigurationInterface $config);
 
     /**
-     * @param Container       $container
-     * @param ConfigurationInterface $config
-     *
-     * @return void
+     * @param array     $configs
+     * @param Container $container
      */
-    public function buildContainer(Container $container, ConfigurationInterface $config);
+    public function buildContainer(array $configs, Container $container);
 
     /**
      * @return string

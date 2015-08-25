@@ -3,10 +3,13 @@
 namespace Framework\Droplet\Core;
 
 use Framework\Config\ConfigurationInterface;
+use Framework\Config\FileLoader;
 use Framework\Droplet\AbstractDroplet;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
@@ -29,24 +32,11 @@ class CoreDroplet extends AbstractDroplet
      */
     public function loadConfiguration(ConfigurationInterface $config)
     {
-        return [
-            'database' => [
-                'driver'   => 'pdo_mysql',
-                'host'     => 'localhost',
-                'username' => 'maxmilhas'
-            ],
-            'routing' => [
-                'route_1' => [
-                    'path' => '/',
-                    'defaults' => [
-                        '_controller' => 'App\Controller\DefaultController::indexAction'
-                    ]
-                ]
-            ],
-            'templating' => [
-                'paths' => 'teste'
-            ]
-        ];
+        $application = $this->getApplication();
+        $loader      = new FileLoader(new FileLocator($application->getRootDir()));
+        $config      = $loader->load($application->getFileConfigurationName());
+
+        return $config;
     }
 
     /**
@@ -57,10 +47,34 @@ class CoreDroplet extends AbstractDroplet
         $treeBuilder = new TreeBuilder();
         $rootNode    = $treeBuilder->root('core');
 
-        $this->addParametersSection($rootNode);
-        $this->addDatabaseSection($rootNode);
-        $this->addRoutingSection($rootNode);
-        $this->addTemplatingSection($rootNode);
+        $rootNode
+            ->children()
+                ->arrayNode('parameters')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->prototype('scalar')->end()
+                ->end()
+            ->end()
+            ->children()
+                ->arrayNode('routing')
+                    ->isRequired()
+                    ->requiresAtLeastOneElement()
+                    ->useAttributeAsKey('name')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('path')->isRequired()->end()
+                            ->arrayNode('defaults')->end()
+                            ->arrayNode('requirements')->end()
+                            ->arrayNode('options')->end()
+                            ->arrayNode('host')->end()
+                            ->arrayNode('schemes')->end()
+                            ->arrayNode('methods')->end()
+                            ->arrayNode('conditions')->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }
@@ -68,8 +82,11 @@ class CoreDroplet extends AbstractDroplet
     /**
      * @inheritDoc
      */
-    public function buildContainer(Container $container, ConfigurationInterface $config)
+    public function buildContainer(array $configs, Container $container)
     {
+        $processor = new Processor();
+        $config = $processor->processConfiguration($this, $configs);
+
         // set the parameters in the container
         foreach ($config['parameters'] as $name => $val) {
             $container[ $name ] = $val;
@@ -94,92 +111,13 @@ class CoreDroplet extends AbstractDroplet
         return 'core';
     }
 
-    private function addParametersSection(ArrayNodeDefinition $rootNode)
-    {
-        $rootNode
-            ->children()
-                ->arrayNode('parameters')
-                    ->useAttributeAsKey('name')
-                    ->defaultValue([])
-                    ->prototype('scalar')->end()
-                ->end()
-            ->end();
-    }
-
-    private function addDatabaseSection(ArrayNodeDefinition $rootNode)
-    {
-        $rootNode
-            ->children()
-                ->arrayNode('database')
-                    ->canBeDisabled()
-                    ->isRequired()
-                    ->children()
-                        ->scalarNode('driver')->isRequired()->end()
-                        ->scalarNode('host')->isRequired()->end()
-                        ->scalarNode('username')->isRequired()->end()
-                        ->scalarNode('password')->end()
-                    ->end()
-                ->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function addRoutingSection(ArrayNodeDefinition $rootNode)
-    {
-        $rootNode
-            ->children()
-                ->arrayNode('routing')
-                    ->requiresAtLeastOneElement()
-                    ->useAttributeAsKey('name')
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('path')->isRequired()->end()
-                            ->arrayNode('defaults')->end()
-                            ->arrayNode('requirements')->end()
-                            ->arrayNode('options')->end()
-                            ->arrayNode('host')->end()
-                            ->arrayNode('schemes')->end()
-                            ->arrayNode('methods')->end()
-                            ->arrayNode('conditions')->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function addTemplatingSection(ArrayNodeDefinition $rootNode)
-    {
-        $rootNode
-            ->children()
-                ->arrayNode('templating')
-                    ->children()
-                        ->arrayNode('paths')
-                            ->example(['php'])
-                            ->isRequired()
-                            ->requiresAtLeastOneElement()
-                            ->beforeNormalization()
-                                ->ifTrue(function($v) { return !is_array($v); })
-                                ->then(function ($v) { return array($v); })
-                            ->end()
-                            ->prototype('scalar')->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function configureRouting(Container $container, ConfigurationInterface $config)
+    private function configureRouting(Container $container, $config)
     {
         $container['routes'] = function () use ($config) {
 
             $routes = new RouteCollection();
 
-            foreach ($config['routing']->toArray() as $name => $value) {
+            foreach ($config['routing'] as $name => $value) {
                 $route = new Route(
                     $value['path'],
                     $value['defaults']

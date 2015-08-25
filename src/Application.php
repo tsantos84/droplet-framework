@@ -2,11 +2,11 @@
 
 namespace Framework;
 
-use Framework\Config\Configuration;
 use Framework\Config\ConfigurationInterface;
+use Framework\Config\FileLoader;
 use Framework\Droplet\DropletInterface;
 use Pimple\Container;
-use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -52,7 +52,7 @@ class Application implements HttpKernelInterface
     public function __construct($env = 'prod')
     {
         $this->environment = $env;
-        $this->droplets  = [];
+        $this->droplets    = [];
     }
 
     /**
@@ -90,13 +90,6 @@ class Application implements HttpKernelInterface
         // process the droplets configurations
         $configuration = $this->getConfiguration();
 
-        $container = $this->getContainer();
-
-        // build the container
-        foreach ($this->droplets as $droplet) {
-            $droplet->buildContainer($container, $configuration);
-        }
-
         return $this;
     }
 
@@ -107,6 +100,7 @@ class Application implements HttpKernelInterface
     {
         $this->boot();
         $container = $this->getContainer();
+
         return $container['kernel']->handle($request, $type, $catch);
     }
 
@@ -121,21 +115,21 @@ class Application implements HttpKernelInterface
     /**
      * Register an extension to application
      *
-     * @param ExtensionInterface $extension
+     * @param DropletInterface $droplet
      *
      * @return Application
      */
-    public function registerDroplet(DropletInterface $extension)
+    public function registerDroplet(DropletInterface $droplet)
     {
-        $name = $extension->getName();
+        $name = $droplet->getName();
 
         if (array_key_exists($name, $this->droplets)) {
             throw new \InvalidArgumentException('A droplet with name "' . $name . '" is already registered');
         }
 
-        $extension->setApplication($this);
+        $droplet->setApplication($this);
 
-        $this->droplets[ $name ] = $extension;
+        $this->droplets[ $name ] = $droplet;
 
         return $this;
     }
@@ -154,20 +148,16 @@ class Application implements HttpKernelInterface
     {
         if (null === $this->configuration) {
 
-            $this->configuration = new Configuration();
+            $configuration = $this->loadConfiguration();
+            $container = $this->getContainer();
 
-            $processor = new Processor();
-
-            foreach ($this->droplets as $droplet) {
-                $config = $droplet->loadConfiguration($this->configuration);
-                $processed = $processor->processConfiguration($droplet, [$config]);
-                $this->configuration->merge($processed);
+            foreach ($this->droplets as $name => $droplet) {
+                $configs = isset($configuration[$name]) ? $configuration[$name] : [];
+                $droplet->buildContainer($configs, $container);
             }
-
         }
 
         return $this->configuration;
-
     }
 
     /**
@@ -180,5 +170,21 @@ class Application implements HttpKernelInterface
         }
 
         return $this->container;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileConfigurationName()
+    {
+        return sprintf('config/config_%s.php', $this->getEnvironment());
+    }
+
+    public function loadConfiguration()
+    {
+        $loader = new FileLoader(new FileLocator($this->getRootDir()));
+        $config = $loader->load($this->getFileConfigurationName());
+
+        return $config;
     }
 }

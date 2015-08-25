@@ -2,7 +2,8 @@
 
 return [
     '@import' => [
-        'database.php',
+        'parameters.php',
+        'doctrine.php',
         'routing.php'
     ]
 ];
