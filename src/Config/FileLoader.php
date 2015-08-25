@@ -10,6 +10,8 @@ use Symfony\Component\Config\Loader\FileLoader as BaseFileLoader;
  */
 class FileLoader extends BaseFileLoader
 {
+    private $config;
+
     /**
      * @inheritDoc
      */
@@ -18,13 +20,23 @@ class FileLoader extends BaseFileLoader
         $file    = $this->locator->locate($resource);
         $config  = $this->getConfiguration($file);
         $imports = $this->getImports($config);
+
+        if (count($config) > 0) {
+            foreach ($config as $key => $val) {
+                if (!isset($this->config[$key])) {
+                    $this->config[$key] = [];
+                }
+                $this->config[$key][] = $val;
+            }
+        }
+
         $this->setCurrentDir(dirname($file));
 
         foreach ($imports as $import) {
-            $config = array_replace_recursive($this->import($import), $config);
+            $this->import($import);
         }
 
-        return $config;
+        return $this->config;
     }
 
     /**
