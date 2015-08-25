@@ -11,7 +11,7 @@ use Pimple\Container;
 abstract class AbstractContainerAware implements ContainerAwareInterface
 {
     /**
-     * @var
+     * @var Container
      */
     protected $container;
 

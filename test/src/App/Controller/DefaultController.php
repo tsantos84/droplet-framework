@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use Framework\Controller\Controller;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class DefaultController
@@ -11,8 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DefaultController extends Controller
 {
-    public function indexAction()
+
+    public function indexAction($name)
     {
-        return new Response('Hello Droplet');
+        return $this->render('welcome.html.php', [
+            'name' => $name
+        ]);
     }
 }

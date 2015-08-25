@@ -4,7 +4,7 @@ return [
     'core' => [
         'routing' => [
             'home' => [
-                'path'     => '/',
+                'path'     => '/welcome/{name}',
                 'defaults' => [
                     '_controller' => '@app.default_controller::indexAction'
                 ]
