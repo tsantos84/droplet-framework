@@ -52,7 +52,9 @@ class FileLoader extends BaseFileLoader
         $config = include $resource;
 
         if (!is_array($config)) {
-            throw new \InvalidArgumentException('The configuration file "' . $resource . '" must return an array');
+            throw new \InvalidArgumentException(
+                'The configuration file "' . $resource . '" must return an array'
+            );
         }
 
         return $config;
