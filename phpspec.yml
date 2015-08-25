@@ -1,0 +1,4 @@
+suites:
+    droplet_suite:
+        namespace: Framework
+        psr4_prefix: Framework
