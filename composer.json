@@ -1,7 +1,7 @@
 {
-  "name": "tsantos/bubble-framework",
+  "name": "tsantos/droplet-framework",
   "description": "Lightweight and extensible PHP framework for small projects",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
     {
