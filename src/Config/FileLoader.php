@@ -26,7 +26,7 @@ class FileLoader extends BaseFileLoader
                 if (!isset($this->config[$key])) {
                     $this->config[$key] = [];
                 }
-                $this->config[$key][] = $val;
+                array_unshift($this->config[$key], $val);
             }
         }
 
