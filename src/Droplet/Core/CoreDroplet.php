@@ -4,15 +4,14 @@ namespace Framework\Droplet\Core;
 
 use Framework\Config\ConfigurationInterface;
 use Framework\Config\FileLoader;
+use Framework\Controller\ControllerResolver;
 use Framework\Droplet\AbstractDroplet;
 use Pimple\Container;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -142,8 +141,8 @@ class CoreDroplet extends AbstractDroplet
             return new UrlMatcher($c['routes'], $c['request_context']);
         };
 
-        $container['controller_resolver'] = function() {
-            return new ControllerResolver();
+        $container['controller_resolver'] = function($c) {
+            return new ControllerResolver($c);
         };
 
         $container->extend('event_dispatcher', function(EventDispatcherInterface $dispatcher, $c) {

@@ -6,7 +6,7 @@ return [
             'home' => [
                 'path'     => '/',
                 'defaults' => [
-                    '_controller' => 'App\Controller\DefaultController::indexAction'
+                    '_controller' => '@app.default_controller::indexAction'
                 ]
             ]
         ]

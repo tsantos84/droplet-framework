@@ -14,5 +14,6 @@ class MyApplication extends Application
     public function registerDroplets()
     {
         $this->registerDroplet(new CoreDroplet());
+        $this->registerDroplet(new App\AppDroplet());
     }
 }
