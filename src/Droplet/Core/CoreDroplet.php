@@ -29,18 +29,6 @@ class CoreDroplet extends AbstractDroplet
     /**
      * @inheritDoc
      */
-    public function loadConfiguration(ConfigurationInterface $config)
-    {
-        $application = $this->getApplication();
-        $loader      = new FileLoader(new FileLocator($application->getRootDir()));
-        $config      = $loader->load($application->getFileConfigurationName());
-
-        return $config;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();

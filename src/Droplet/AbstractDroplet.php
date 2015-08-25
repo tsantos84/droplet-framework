@@ -3,7 +3,6 @@
 namespace Framework\Droplet;
 
 use Framework\Application;
-use Framework\Config\ConfigurationInterface;
 use Pimple\Container;
 
 /**
@@ -31,13 +30,6 @@ abstract class AbstractDroplet implements DropletInterface
     public function getApplication()
     {
         return $this->application;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function loadConfiguration(ConfigurationInterface $config)
-    {
     }
 
     /**
