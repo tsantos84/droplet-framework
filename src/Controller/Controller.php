@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Class Controller
  * @package Framework\Controller
  */
-class Controller extends AbstractContainerAware
+abstract class Controller extends AbstractContainerAware
 {
     /**
      * @param       $template
