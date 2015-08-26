@@ -2,14 +2,11 @@
 
 namespace Framework\Droplet\Core;
 
-use Framework\Config\ConfigurationInterface;
-use Framework\Config\FileLoader;
 use Framework\Controller\ControllerResolver;
 use Framework\Droplet\AbstractDroplet;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -24,7 +21,7 @@ use Symfony\Component\Routing\RouteCollection;
  * Class CoreExtension
  * @package Droplet\Extension\CoreExtension
  */
-class CoreDroplet extends AbstractDroplet
+class RoutingDroplet extends AbstractDroplet
 {
     /**
      * @inheritDoc
@@ -32,36 +29,25 @@ class CoreDroplet extends AbstractDroplet
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode    = $treeBuilder->root('core');
+        $rootNode    = $treeBuilder->root('routing');
 
         $rootNode
-            ->children()
-                ->arrayNode('parameters')
-                    ->useAttributeAsKey('name')
-                    ->defaultValue([])
-                    ->prototype('scalar')->end()
-                ->end()
-            ->end()
-            ->children()
-                ->arrayNode('routing')
-                    ->isRequired()
-                    ->requiresAtLeastOneElement()
-                    ->useAttributeAsKey('name')
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('path')->isRequired()->end()
-                            ->arrayNode('defaults')
-                                ->prototype('scalar')
-                                ->end()
-                            ->end()
-                            ->arrayNode('requirements')->end()
-                            ->arrayNode('options')->end()
-                            ->arrayNode('host')->end()
-                            ->arrayNode('schemes')->end()
-                            ->arrayNode('methods')->end()
-                            ->arrayNode('conditions')->end()
+            ->isRequired()
+            ->requiresAtLeastOneElement()
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->children()
+                    ->scalarNode('path')->isRequired()->end()
+                    ->arrayNode('defaults')
+                        ->prototype('scalar')
                         ->end()
                     ->end()
+                    ->arrayNode('requirements')->end()
+                    ->arrayNode('options')->end()
+                    ->arrayNode('host')->end()
+                    ->arrayNode('schemes')->end()
+                    ->arrayNode('methods')->end()
+                    ->arrayNode('conditions')->end()
                 ->end()
             ->end()
         ;
@@ -77,11 +63,6 @@ class CoreDroplet extends AbstractDroplet
         $processor = new Processor();
         $config = $processor->processConfiguration($this, $configs);
 
-        // set the parameters in the container
-        foreach ($config['parameters'] as $name => $val) {
-            $container[ $name ] = $val;
-        }
-
         $container['event_dispatcher'] = function () {
             return new EventDispatcher();
         };
@@ -90,24 +71,11 @@ class CoreDroplet extends AbstractDroplet
             return new HttpKernel($c['event_dispatcher'], $c['controller_resolver']);
         };
 
-        $this->configureRouting($container, $config);
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'core';
-    }
-
-    private function configureRouting(Container $container, $config)
-    {
         $container['routes'] = function () use ($config) {
 
             $routes = new RouteCollection();
 
-            foreach ($config['routing'] as $name => $value) {
+            foreach ($config as $name => $value) {
                 $route = new Route(
                     $value['path'],
                     $value['defaults']
@@ -146,5 +114,13 @@ class CoreDroplet extends AbstractDroplet
 
             return $dispatcher;
         });
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return 'routing';
     }
 }
