@@ -40,7 +40,6 @@ class ControllerResolverSpec extends ObjectBehavior
 
         $container->offsetExists('test_controller')->willReturn(true);
         $container->offsetGet('test_controller')->willReturn($controller);
-        $controller->setContainer($container)->shouldBeCalled();
 
         /**
          * This exception is thrown when the original symfony resolver can't resolve
