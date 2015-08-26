@@ -15,7 +15,7 @@ that great configuration.
 Inspiration
 -----------
 
-Droplet Framework was inspired on [Symfony Framework][1] and use some of its components
+Droplet Framework was inspired on [Symfony Framework][1] and uses some of its components
 to perform some boring things like [Routing][2] and [Templating][3].
 
 Requirements
