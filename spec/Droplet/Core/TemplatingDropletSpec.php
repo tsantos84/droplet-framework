@@ -24,6 +24,7 @@ class TemplatingDropletSpec extends ObjectBehavior
         $container->offsetSet('templating.template_name_parser', Argument::any())->shouldBeCalled();
         $container->offsetSet('templating.engine.php', Argument::any())->shouldBeCalled();
         $container->offsetSet('templating', Argument::any())->shouldBeCalled();
+        $container->extend('templating.engine.php', Argument::any())->shouldBeCalled();
         $this->buildContainer([['paths' => ['/path/to/view']]], $container);
     }
 
