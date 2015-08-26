@@ -24,8 +24,7 @@ class ParameterDroplet extends AbstractDroplet
         $rootNode
             ->useAttributeAsKey('name')
             ->defaultValue([])
-            ->prototype('scalar')->end()
-        ;
+            ->prototype('scalar')->end();
 
         return $treeBuilder;
     }
