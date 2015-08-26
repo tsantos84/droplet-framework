@@ -70,6 +70,7 @@ class TemplatingDroplet extends AbstractDroplet
 
         $container->extend('templating.engine.php', function(PhpEngine $engine) {
             $engine->set(new SlotsHelper());
+            return $engine;
         });
 
         $container['templating'] = function ($c) {
