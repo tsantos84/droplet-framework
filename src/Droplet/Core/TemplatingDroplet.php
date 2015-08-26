@@ -7,6 +7,7 @@ use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Templating\DelegatingEngine;
+use Symfony\Component\Templating\Helper\SlotsHelper;
 use Symfony\Component\Templating\Loader\FilesystemLoader;
 use Symfony\Component\Templating\PhpEngine;
 use Symfony\Component\Templating\TemplateNameParser;
@@ -66,6 +67,10 @@ class TemplatingDroplet extends AbstractDroplet
                 $c['templating.filesystem_loader']
             );
         };
+
+        $container->extend('templating.engine.php', function(PhpEngine $engine) {
+            $engine->set(new SlotsHelper());
+        });
 
         $container['templating'] = function ($c) {
             return new DelegatingEngine([
