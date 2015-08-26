@@ -24,4 +24,9 @@ class ParameterDropletSpec extends ObjectBehavior
         $container->offsetSet('param_1', 'value_1')->shouldBeCalled();
         $this->buildContainer($config, $container);
     }
+
+    function its_name_is_parameters()
+    {
+        $this->getName()->shouldReturn('parameters');
+    }
 }
