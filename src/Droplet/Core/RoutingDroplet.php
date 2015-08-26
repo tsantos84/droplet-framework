@@ -2,15 +2,12 @@
 
 namespace Framework\Droplet\Core;
 
-use Framework\Controller\ControllerResolver;
 use Framework\Droplet\AbstractDroplet;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -63,14 +60,6 @@ class RoutingDroplet extends AbstractDroplet
         $processor = new Processor();
         $config = $processor->processConfiguration($this, $configs);
 
-        $container['event_dispatcher'] = function () {
-            return new EventDispatcher();
-        };
-
-        $container['kernel'] = function($c) {
-            return new HttpKernel($c['event_dispatcher'], $c['controller_resolver']);
-        };
-
         $container['routes'] = function () use ($config) {
 
             $routes = new RouteCollection();
@@ -98,10 +87,6 @@ class RoutingDroplet extends AbstractDroplet
 
         $container['url_matcher'] = function($c) {
             return new UrlMatcher($c['routes'], $c['request_context']);
-        };
-
-        $container['controller_resolver'] = function($c) {
-            return new ControllerResolver($c);
         };
 
         $container->extend('event_dispatcher', function(EventDispatcherInterface $dispatcher, $c) {
