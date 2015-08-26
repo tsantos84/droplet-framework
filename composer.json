@@ -6,7 +6,8 @@
   "authors": [
     {
       "name": "Tales Santos",
-      "email": "tales.augusto.santos@gmail.com"
+      "email": "tales.augusto.santos@gmail.com",
+      "role": "Developer"
     }
   ],
   "autoload" : {
