@@ -46,11 +46,6 @@ class ControllerResolver extends BaseControllerResolver
                     // fetch the controller from the service container
                     $controller = $this->container[ $service ];
 
-                    // inject the container into controller
-                    if ($controller instanceof ContainerAwareInterface) {
-                        $controller->setContainer($this->container);
-                    }
-
                     // creates the callable and replace the controller on request attributes
                     $callable = [$controller, $action];
                     $request->attributes->set('_controller', $callable);
@@ -67,5 +62,18 @@ class ControllerResolver extends BaseControllerResolver
         return parent::getController($request);
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected function instantiateController($class)
+    {
+        $controller = parent::instantiateController($class);
 
+        // inject the container into controller
+        if ($controller instanceof ContainerAwareInterface) {
+            $controller->setContainer($this->container);
+        }
+
+        return $controller;
+    }
 }
