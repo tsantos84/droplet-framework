@@ -47,6 +47,13 @@ abstract class AbstractDroplet implements DropletInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getDependencies()
+    {
+    }
+
+    /**
      * @return string
      */
     public function __toString()

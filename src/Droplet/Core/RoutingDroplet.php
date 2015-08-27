@@ -102,6 +102,14 @@ class RoutingDroplet extends AbstractDroplet
     }
 
     /**
+     * @return array
+     */
+    public function getDependencies()
+    {
+        return ['kernel'];
+    }
+
+    /**
      * @return string
      */
     public function getName()

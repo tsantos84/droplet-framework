@@ -32,11 +32,6 @@ class Application implements HttpKernelInterface
     private $droplets;
 
     /**
-     * @var ConfigurationInterface
-     */
-    private $configuration;
-
-    /**
      * @var Container
      */
     private $container;
@@ -86,9 +81,10 @@ class Application implements HttpKernelInterface
         }
 
         $this->registerDroplets();
+        $this->resolveDroplet();
+        $this->buildContainer();
 
-        // process the droplets configurations
-        $configuration = $this->getConfiguration();
+        $this->booted = true;
 
         return $this;
     }
@@ -142,25 +138,6 @@ class Application implements HttpKernelInterface
     }
 
     /**
-     * @return ConfigurationInterface
-     */
-    public function getConfiguration()
-    {
-        if (null === $this->configuration) {
-
-            $configuration = $this->loadConfiguration();
-            $container     = $this->getContainer();
-
-            foreach ($this->droplets as $name => $droplet) {
-                $configs = isset($configuration[ $name ]) ? $configuration[ $name ] : [];
-                $droplet->buildContainer($configs, $container);
-            }
-        }
-
-        return $this->configuration;
-    }
-
-    /**
      * @return Container
      */
     public function getContainer()
@@ -190,6 +167,65 @@ class Application implements HttpKernelInterface
         $config = $loader->load($this->getFileConfigurationName());
 
         return $config;
+    }
+
+    /**
+     * @param null $droplet
+     */
+    protected function resolveDroplet($droplet = null)
+    {
+        static $resolved = [];
+
+        if (null === $droplet) {
+
+            foreach ($this->droplets as $droplet) {
+                $this->resolveDroplet($droplet->getName());
+            }
+
+        } else {
+
+            // droplet already resolved
+            if (isset($resolved[ $droplet ])) {
+                return;
+            }
+
+            // droplet not found
+            if (!isset($this->droplets[ $droplet ])) {
+                throw new \InvalidArgumentException(
+                    'Trying to resolve the droplet ' . $droplet . ' that is not registered'
+                );
+            }
+
+            $dependencies = $this->droplets[ $droplet ]->getDependencies();
+
+            foreach ($dependencies as $dependency) {
+
+                // dependency not registered
+                if (!isset($this->droplets[ $dependency ])) {
+                    throw new \RuntimeException(sprintf(
+                        'The droplet %s has a dependency to %s which was not registered on application'
+                    ));
+                }
+
+                $this->resolveDroplet($dependency);
+            }
+
+            $resolved[ $droplet ] = true;
+        }
+    }
+
+    /**
+     * Build the container
+     */
+    protected function buildContainer()
+    {
+        $configuration = $this->loadConfiguration();
+        $container     = $this->getContainer();
+
+        foreach ($this->droplets as $name => $droplet) {
+            $configs = isset($configuration[ $name ]) ? $configuration[ $name ] : [];
+            $droplet->buildContainer($configs, $container);
+        }
     }
 
     /**

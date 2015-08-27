@@ -3,7 +3,6 @@
 namespace Framework\Droplet;
 
 use Framework\Application;
-use Framework\Config\ConfigurationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\ConfigurationInterface as SfConfiguration;
 
@@ -30,6 +29,11 @@ interface DropletInterface extends SfConfiguration
      * @param Container $container
      */
     public function buildContainer(array $configs, Container $container);
+
+    /**
+     * @return array
+     */
+    public function getDependencies();
 
     /**
      * @return string
