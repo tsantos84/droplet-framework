@@ -117,6 +117,10 @@ class Application implements HttpKernelInterface
      */
     public function registerDroplet(DropletInterface $droplet)
     {
+        if ($this->booted) {
+            throw new \RuntimeException('Tried to register a droplet after application booted');
+        }
+
         $name = $droplet->getName();
 
         if (array_key_exists($name, $this->droplets)) {
