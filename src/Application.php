@@ -149,10 +149,10 @@ class Application implements HttpKernelInterface
         if (null === $this->configuration) {
 
             $configuration = $this->loadConfiguration();
-            $container = $this->getContainer();
+            $container     = $this->getContainer();
 
             foreach ($this->droplets as $name => $droplet) {
-                $configs = isset($configuration[$name]) ? $configuration[$name] : [];
+                $configs = isset($configuration[ $name ]) ? $configuration[ $name ] : [];
                 $droplet->buildContainer($configs, $container);
             }
         }
@@ -167,6 +167,7 @@ class Application implements HttpKernelInterface
     {
         if (null === $this->container) {
             $this->container = new Container();
+            $this->startContainer($this->container);
         }
 
         return $this->container;
@@ -180,11 +181,24 @@ class Application implements HttpKernelInterface
         return sprintf('config/config_%s.php', $this->getEnvironment());
     }
 
+    /**
+     * @return array
+     */
     public function loadConfiguration()
     {
         $loader = new FileLoader(new FileLocator($this->getRootDir()));
         $config = $loader->load($this->getFileConfigurationName());
 
         return $config;
+    }
+
+    /**
+     * @param Container $container
+     */
+    protected function startContainer(Container $container)
+    {
+        $container['app']          = $this;
+        $container['app.root_dir'] = $this->getRootDir();
+        $container['app.env']      = $this->getEnvironment();
     }
 }
