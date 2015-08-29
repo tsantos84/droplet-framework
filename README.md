@@ -28,7 +28,7 @@ Installation
 
 Use composer to install Droplet Framework
 
-    $ composer require tsantos84/droplet-framework
+    $ composer require tsantos/droplet-framework
 
 Documentation
 -------------
