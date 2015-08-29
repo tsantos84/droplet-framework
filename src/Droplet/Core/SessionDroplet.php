@@ -28,10 +28,12 @@ class SessionDroplet extends AbstractDroplet
         $treeBuilder = new TreeBuilder();
         $rootNode    = $treeBuilder->root('session');
 
+        $storageKey = sprintf('_%s_', $this->getApplication()->getName());
+
         $rootNode
             ->children()
                 ->scalarNode('storage_key')
-                    ->defaultValue('_session_key')
+                    ->defaultValue($storageKey)
                 ->end()
                 ->arrayNode('options')
                     ->prototype('array')
