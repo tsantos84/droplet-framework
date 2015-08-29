@@ -4,6 +4,7 @@ namespace Framework\Controller;
 
 use Framework\DependencyInjection\AbstractContainerAware;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Class Controller
@@ -44,5 +45,17 @@ abstract class Controller extends AbstractContainerAware
         $response->setContent($content);
 
         return $response;
+    }
+
+    /**
+     * @return SessionInterface
+     */
+    public function getSession()
+    {
+        if (!isset($this->container['session'])) {
+            throw new \RuntimeException('The droplet "session" must be registered');
+        }
+
+        return $this->container['session'];
     }
 }
