@@ -51,6 +51,7 @@ abstract class AbstractDroplet implements DropletInterface
      */
     public function getDependencies()
     {
+        return [];
     }
 
     /**
