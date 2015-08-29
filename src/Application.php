@@ -2,7 +2,6 @@
 
 namespace Framework;
 
-use Framework\Config\ConfigurationInterface;
 use Framework\Config\FileLoader;
 use Framework\Droplet\DropletInterface;
 use Pimple\Container;
@@ -16,6 +15,11 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  */
 class Application implements HttpKernelInterface
 {
+    /**
+     * @var string
+     */
+    private $name;
+
     /**
      * @var string
      */
@@ -43,9 +47,11 @@ class Application implements HttpKernelInterface
 
     /**
      * @param string $env
+     * @param string $name
      */
-    public function __construct($env = 'prod')
+    public function __construct($env = 'prod', $name = 'MyApp')
     {
+        $this->name        = $name;
         $this->environment = $env;
         $this->droplets    = [];
     }
@@ -61,6 +67,14 @@ class Application implements HttpKernelInterface
         }
 
         return $this->rootDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
