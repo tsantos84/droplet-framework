@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeSessionHandler;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -30,9 +30,13 @@ class SessionDroplet extends AbstractDroplet
 
         $rootNode
             ->children()
-            ->scalarNode('storage_key')
-            ->defaultValue('_session_key')
-            ->end()
+                ->scalarNode('storage_key')
+                    ->defaultValue('_session_key')
+                ->end()
+                ->arrayNode('options')
+                    ->prototype('array')
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
@@ -48,8 +52,8 @@ class SessionDroplet extends AbstractDroplet
 
         $container['session.storage_key'] = $config['storage_key'];
 
-        $container['session.handler'] = function () {
-            return new NativeSessionHandler();
+        $container['session.handler'] = function () use ($config) {
+            return new NativeSessionStorage($config['options']);
         };
 
         $container['session.bag'] = function ($c) {
@@ -69,7 +73,7 @@ class SessionDroplet extends AbstractDroplet
                 // set the session in request
                 $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($session) {
 
-                    if ($ev->isMasterRequest()) {
+                    if (!$ev->isMasterRequest()) {
                         return;
                     }
 
@@ -95,6 +99,14 @@ class SessionDroplet extends AbstractDroplet
                 });
 
                 return $dispatcher;
+            });
+        }
+
+        // add the global variable to access the session from views
+        if (isset($container['templating.engine.php'])) {
+            $container->extend('templating.engine.php', function($engine, $c) {
+                $engine->addGlobal('session', $c['session']);
+                return $engine;
             });
         }
     }
