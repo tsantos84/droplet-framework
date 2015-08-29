@@ -40,6 +40,9 @@ class TemplatingDroplet extends AbstractDroplet
                     ->end()
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('globals')
+                    ->prototype('array')->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
@@ -61,17 +64,20 @@ class TemplatingDroplet extends AbstractDroplet
             return new TemplateNameParser();
         };
 
-        $container['templating.engine.php'] = function($c) {
-            return new PhpEngine(
-                $c['templating.template_name_parser'],
-                $c['templating.filesystem_loader']
-            );
-        };
+        $container['templating.engine.php'] = function($c) use ($config) {
 
-        $container->extend('templating.engine.php', function(PhpEngine $engine) {
-            $engine->set(new SlotsHelper());
+            $engine = new PhpEngine(
+                $c['templating.template_name_parser'],
+                $c['templating.filesystem_loader'],
+                [new SlotsHelper()]
+            );
+
+            foreach ($config['globals'] as $name => $value) {
+                $engine->addGlobal($name, $value);
+            }
+
             return $engine;
-        });
+        };
 
         $container['templating'] = function ($c) {
             return new DelegatingEngine([
