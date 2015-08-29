@@ -57,44 +57,46 @@ class SessionDroplet extends AbstractDroplet
         };
 
         $container['session'] = function ($c) {
-            return new Session($c['session.handler']);
+            return new Session($c['session.handler'], $c['session.bag']);
         };
 
         // events to start and save the session
-        $container->extend('event_dispatcher', function (EventDispatcherInterface $dispatcher, Container $container) {
+        if (isset($container['event_dispatcher'])) {
+            $container->extend('event_dispatcher', function (EventDispatcherInterface $dispatcher, Container $container) {
 
-            $session = $container['session'];
+                $session = $container['session'];
 
-            // set the session in request
-            $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($session) {
+                // set the session in request
+                $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($session) {
 
-                if ($ev->isMasterRequest()) {
-                    return;
-                }
+                    if ($ev->isMasterRequest()) {
+                        return;
+                    }
 
-                $request = $ev->getRequest();
+                    $request = $ev->getRequest();
 
-                if (null === $request->getSession()) {
-                    $request->setSession($session);
-                    $session->start();
-                }
+                    if (null === $request->getSession()) {
+                        $request->setSession($session);
+                        $session->start();
+                    }
 
+                });
+
+                // save the session
+                $dispatcher->addListener(KernelEvents::FINISH_REQUEST, function (FinishRequestEvent $ev) {
+
+                    if (!$ev->isMasterRequest()) {
+                        return;
+                    }
+
+                    if ($session = $ev->getRequest()->getSession()) {
+                        $session->save();
+                    }
+                });
+
+                return $dispatcher;
             });
-
-            // save the session
-            $dispatcher->addListener(KernelEvents::FINISH_REQUEST, function (FinishRequestEvent $ev) {
-
-                if (!$ev->isMasterRequest()) {
-                    return;
-                }
-
-                if ($session = $ev->getRequest()->getSession()) {
-                    $session->save();
-                }
-            });
-
-            return $dispatcher;
-        });
+        }
     }
 
     /**
