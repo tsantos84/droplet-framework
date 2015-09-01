@@ -2,7 +2,7 @@
 
 namespace Framework\Droplet;
 
-use Framework\Application;
+use Framework\ApplicationInterface;
 use Pimple\Container;
 use Symfony\Component\Config\Definition\ConfigurationInterface as SfConfiguration;
 
@@ -13,14 +13,14 @@ use Symfony\Component\Config\Definition\ConfigurationInterface as SfConfiguratio
 interface DropletInterface extends SfConfiguration
 {
     /**
-     * @param Application $application
+     * @param ApplicationInterface $application
      *
      * @return void
      */
-    public function setApplication(Application $application);
+    public function setApplication(ApplicationInterface $application);
 
     /**
-     * @return Application
+     * @return ApplicationInterface
      */
     public function getApplication();
 

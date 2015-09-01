@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  * Class Application
  * @package Bubble\Component\Application
  */
-class Application implements HttpKernelInterface
+class Application implements ApplicationInterface
 {
     /**
      * @var string

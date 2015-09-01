@@ -2,7 +2,7 @@
 
 namespace Framework\Droplet;
 
-use Framework\Application;
+use Framework\ApplicationInterface;
 use Pimple\Container;
 
 /**
@@ -17,15 +17,15 @@ abstract class AbstractDroplet implements DropletInterface
     private $application;
 
     /**
-     * @param Application $application
+     * @param ApplicationInterface $application
      */
-    public function setApplication(Application $application)
+    public function setApplication(ApplicationInterface $application)
     {
         $this->application = $application;
     }
 
     /**
-     * @return Application
+     * @return ApplicationInterface
      */
     public function getApplication()
     {
