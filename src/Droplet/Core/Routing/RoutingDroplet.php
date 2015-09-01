@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Droplet\Core;
+namespace Framework\Droplet\Core\Routing;
 
 use Framework\Droplet\AbstractDroplet;
 use Pimple\Container;
@@ -9,9 +9,9 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -29,25 +29,13 @@ class RoutingDroplet extends AbstractDroplet
         $rootNode    = $treeBuilder->root('routing');
 
         $rootNode
-            ->isRequired()
-            ->requiresAtLeastOneElement()
-            ->useAttributeAsKey('name')
-            ->prototype('array')
-                ->children()
-                    ->scalarNode('path')->isRequired()->end()
-                    ->arrayNode('defaults')
-                        ->prototype('scalar')
-                        ->end()
-                    ->end()
-                    ->arrayNode('requirements')->end()
-                    ->arrayNode('options')->end()
-                    ->arrayNode('host')->end()
-                    ->arrayNode('schemes')->end()
-                    ->arrayNode('methods')->end()
-                    ->arrayNode('conditions')->end()
+            ->children()
+                ->arrayNode('providers')
+                    ->isRequired()
+                    ->requiresAtLeastOneElement()
+                    ->prototype('variable')->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $treeBuilder;
     }
@@ -58,38 +46,28 @@ class RoutingDroplet extends AbstractDroplet
     public function buildContainer(array $configs, Container $container)
     {
         $processor = new Processor();
-        $config = $processor->processConfiguration($this, $configs);
+        $config    = $processor->processConfiguration($this, $configs);
 
-        $container['routes'] = function () use ($config) {
+        // register the routes
+        $container['routes'] = $this->buildRoutes($config['providers']);
 
-            $routes = new RouteCollection();
-
-            foreach ($config as $name => $value) {
-                $route = new Route(
-                    $value['path'],
-                    $value['defaults']
-//                    $value['requirements'],
-//                    $value['options'],
-//                    $value['host'],
-//                    $value['schemes'],
-//                    $value['methods'],
-//                    $value['conditions']
-                );
-                $routes->add($name, $route);
-            }
-
-            return $routes;
-        };
-
+        // register the request context
         $container['request_context'] = function () {
             return new RequestContext();
         };
 
-        $container['url_matcher'] = function($c) {
+        // register the url matcher
+        $container['url_matcher'] = function ($c) {
             return new UrlMatcher($c['routes'], $c['request_context']);
         };
 
-        $container->extend('event_dispatcher', function(EventDispatcherInterface $dispatcher, $c) {
+        // register the route generator
+        $container['route_generator'] = function($c) {
+            return new UrlGenerator($c['routes'], $c['request_context']);
+        };
+
+        // attach an event to match the current route of the request
+        $container->extend('event_dispatcher', function (EventDispatcherInterface $dispatcher, $c) {
 
             $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($c) {
                 $request = $ev->getRequest();
@@ -99,6 +77,25 @@ class RoutingDroplet extends AbstractDroplet
 
             return $dispatcher;
         });
+    }
+
+    /**
+     * @param array $providers
+     *
+     * @return RouteCollection
+     */
+    private function buildRoutes(array $providers)
+    {
+        $builder = new RouteCollectionBuilder();
+
+        // build the routes of each provider
+        foreach ($providers as $provider) {
+            call_user_func($provider, $builder);
+        }
+
+        $collection = $builder->getRouteCollection();
+
+        return $collection;
     }
 
     /**
