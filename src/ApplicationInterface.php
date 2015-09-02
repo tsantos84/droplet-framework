@@ -24,9 +24,21 @@ interface ApplicationInterface extends HttpKernelInterface
     public function getEnvironment();
 
     /**
+     * @param $environment
+     *
+     * @return boolean
+     */
+    public function isEnvironment($environment);
+
+    /**
      * @return $this
      */
-    public function boot();
+    public function configure();
+
+    /**
+     * @return boolean
+     */
+    public function isConfigured();
 
     /**
      * @return DropletInterface[]
@@ -51,4 +63,9 @@ interface ApplicationInterface extends HttpKernelInterface
      * @return Container
      */
     public function getContainer();
+
+    /**
+     * @return string
+     */
+    public function getConfigurationFilename();
 }

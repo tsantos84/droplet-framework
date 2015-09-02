@@ -7,7 +7,6 @@ use Framework\Droplet\DropletInterface;
 use Pimple\Container;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * Class Application
@@ -43,14 +42,15 @@ class Application implements ApplicationInterface
     /**
      * @var bool
      */
-    private $booted;
+    private $configured;
 
     /**
      * @param string $env
      * @param string $name
      */
-    public function __construct($env = 'prod', $name = 'MyApp')
+    public function __construct($env = null, $name = 'MyApp')
     {
+        $this->configured  = false;
         $this->name        = $name;
         $this->environment = $env;
         $this->droplets    = [];
@@ -86,11 +86,19 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function isEnvironment($environment)
+    {
+        return $this->environment === $environment;
+    }
+
+    /**
      * @return $this
      */
-    public function boot()
+    public function configure()
     {
-        if ($this->booted) {
+        if ($this->isConfigured()) {
             return $this;
         }
 
@@ -98,9 +106,17 @@ class Application implements ApplicationInterface
         $this->resolveDroplet();
         $this->buildContainer();
 
-        $this->booted = true;
+        $this->configured = true;
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isConfigured()
+    {
+        return $this->configured;
     }
 
     /**
@@ -108,10 +124,9 @@ class Application implements ApplicationInterface
      */
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
-        $this->boot();
-        $container = $this->getContainer();
+        $this->configure();
 
-        return $container['kernel']->handle($request, $type, $catch);
+        return $this->container['kernel']->handle($request, $type, $catch);
     }
 
     /**
@@ -123,7 +138,7 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * Register an extension to application
+     * Register a droplet to application
      *
      * @param DropletInterface $droplet
      *
@@ -131,8 +146,8 @@ class Application implements ApplicationInterface
      */
     public function registerDroplet(DropletInterface $droplet)
     {
-        if ($this->booted) {
-            throw new \RuntimeException('Tried to register a droplet after application booted');
+        if ($this->configured) {
+            throw new \RuntimeException('You cannot register droplet to this application as it already was configured');
         }
 
         $name = $droplet->getName();
@@ -149,7 +164,7 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * Register the extensions for this application
+     * Register the droplet for this application
      */
     public function registerDroplets()
     {
@@ -171,18 +186,24 @@ class Application implements ApplicationInterface
     /**
      * @return string
      */
-    public function getFileConfigurationName()
+    public function getConfigurationFilename()
     {
-        return sprintf('config/config_%s.php', $this->getEnvironment());
+        if (null !== $this->environment) {
+            $file = sprintf('config/config_%s.php', $this->getEnvironment());
+        } else {
+            $file = 'config/config.php';
+        }
+
+        return $file;
     }
 
     /**
      * @return array
      */
-    public function loadConfiguration()
+    private function loadConfiguration()
     {
         $loader = new FileLoader(new FileLocator($this->getRootDir()));
-        $config = $loader->load($this->getFileConfigurationName());
+        $config = $loader->load($this->getConfigurationFilename());
 
         return $config;
     }
@@ -190,7 +211,7 @@ class Application implements ApplicationInterface
     /**
      * @param null $droplet
      */
-    protected function resolveDroplet($droplet = null)
+    private function resolveDroplet($droplet = null)
     {
         static $resolved = [];
 
@@ -235,13 +256,21 @@ class Application implements ApplicationInterface
     /**
      * Build the container
      */
-    protected function buildContainer()
+    private function buildContainer()
     {
-        $configuration = $this->loadConfiguration();
-        $container     = $this->getContainer();
+        $config        = $this->loadConfiguration();
+        $unknownConfig = array_keys(array_diff_key($config, $this->droplets));
+
+        if (count($unknownConfig)) {
+            throw new \RuntimeException(
+                'There is no droplet registered capable to handle the configurations for "' . current($unknownConfig) . '"'
+            );
+        }
+
+        $container = $this->getContainer();
 
         foreach ($this->droplets as $name => $droplet) {
-            $configs = isset($configuration[ $name ]) ? $configuration[ $name ] : [];
+            $configs = isset($config[ $name ]) ? $config[ $name ] : [];
             $droplet->buildContainer($configs, $container);
         }
     }
@@ -249,7 +278,7 @@ class Application implements ApplicationInterface
     /**
      * @param Container $container
      */
-    protected function startContainer(Container $container)
+    private function startContainer(Container $container)
     {
         $container['app']          = $this;
         $container['app.root_dir'] = $this->getRootDir();

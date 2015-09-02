@@ -28,6 +28,8 @@ class FileLoader extends BaseFileLoader
                 }
                 array_unshift($this->config[$key], $val);
             }
+        } else {
+            $this->config = [];
         }
 
         $this->setCurrentDir(dirname($file));
