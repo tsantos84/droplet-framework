@@ -24,6 +24,7 @@
     "pimple/pimple": "^3.0"
   },
   "require-dev": {
-    "phpspec/phpspec": "^2.2"
+    "phpspec/phpspec": "^2.2",
+    "behat/behat": "^3.0"
   }
 }
