@@ -1,5 +1,6 @@
 README
 ======
+[![Build Status](https://travis-ci.org/tsantos84/droplet-framework.svg?branch=master)](https://travis-ci.org/tsantos84/droplet-framework)
 
 What is Droplet Framework?
 --------------------------
