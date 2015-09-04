@@ -41,7 +41,7 @@ Writing
 Running Tests
 ----------------------
 
-The unit tests of Droplet Framework were written with [PHPSpec][3] and functional tests with [Behat][6]
+The unit tests of Droplet Framework were written with [PHPSpec][4] and functional tests with [Behat][6]
 
     $ vendor/bin/phpspec run
     $ vendor/bin/behat
