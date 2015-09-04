@@ -31,6 +31,8 @@ Use composer to install Droplet Framework
 
     $ composer require tsantos/droplet-framework
 
+However, you can start using Droplet Framework easily through the ready to use [Droplet Application][5].
+
 Documentation
 -------------
 
@@ -47,3 +49,4 @@ The unit tests of Droplet Framework were written with [PHPSpec][3]
 [2]: http://symfony.com/doc/current/components/routing/introduction.html
 [3]: http://symfony.com/doc/current/components/templating/introduction.html
 [4]: http://www.phpspec.net/en/latest/
+[5]: https://github.com/tsantos84/droplet-application
