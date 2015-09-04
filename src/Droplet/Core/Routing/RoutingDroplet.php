@@ -7,8 +7,11 @@ use Pimple\Container;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -66,13 +69,25 @@ class RoutingDroplet extends AbstractDroplet
             return new UrlGenerator($c['routes'], $c['request_context']);
         };
 
-        // attach an event to match the current route of the request
         $container->extend('event_dispatcher', function (EventDispatcherInterface $dispatcher, $c) {
 
+            // try to found a route for the give request
             $dispatcher->addListener(KernelEvents::REQUEST, function (GetResponseEvent $ev) use ($c) {
                 $request = $ev->getRequest();
                 $attribs = $c['url_matcher']->match($request->getPathInfo());
                 $request->attributes->add($attribs);
+            });
+
+            // handle page not found exceptions
+            $dispatcher->addListener(KernelEvents::EXCEPTION, function(GetResponseForExceptionEvent $ev) {
+
+                $response = $ev->getResponse() ?: new Response();
+
+                if ($ev->getException() instanceof ResourceNotFoundException) {
+                    $response->setStatusCode(404);
+                }
+
+                $ev->setResponse($response);
             });
 
             return $dispatcher;
