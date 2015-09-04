@@ -1,6 +1,6 @@
 README
 ======
-[![Build Status](https://travis-ci.org/tsantos84/droplet-framework.svg?branch=master)](https://travis-ci.org/tsantos84/droplet-framework)
+[![Build Status](https://travis-ci.org/tsantos84/droplet-framework.svg?branch=master)](https://travis-ci.org/tsantos84/droplet-framework) [![Latest Stable Version](https://poser.pugx.org/tsantos/droplet-framework/v/stable)](https://packagist.org/packages/tsantos/droplet-framework) [![Total Downloads](https://poser.pugx.org/tsantos/droplet-framework/downloads)](https://packagist.org/packages/tsantos/droplet-framework) [![Latest Unstable Version](https://poser.pugx.org/tsantos/droplet-framework/v/unstable)](https://packagist.org/packages/tsantos/droplet-framework) [![License](https://poser.pugx.org/tsantos/droplet-framework/license)](https://packagist.org/packages/tsantos/droplet-framework)
 
 What is Droplet Framework?
 --------------------------
