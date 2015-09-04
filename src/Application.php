@@ -200,7 +200,7 @@ class Application implements ApplicationInterface
     /**
      * @return array
      */
-    private function loadConfiguration()
+    protected function loadConfiguration()
     {
         $loader = new FileLoader(new FileLocator($this->getRootDir()));
         $config = $loader->load($this->getConfigurationFilename());
@@ -211,7 +211,7 @@ class Application implements ApplicationInterface
     /**
      * @param null $droplet
      */
-    private function resolveDroplet($droplet = null)
+    protected function resolveDroplet($droplet = null)
     {
         static $resolved = [];
 
@@ -256,7 +256,7 @@ class Application implements ApplicationInterface
     /**
      * Build the container
      */
-    private function buildContainer()
+    protected function buildContainer()
     {
         $config        = $this->loadConfiguration();
         $unknownConfig = array_keys(array_diff_key($config, $this->droplets));
@@ -278,7 +278,7 @@ class Application implements ApplicationInterface
     /**
      * @param Container $container
      */
-    private function startContainer(Container $container)
+    protected function startContainer(Container $container)
     {
         $container['app']          = $this;
         $container['app.root_dir'] = $this->getRootDir();
