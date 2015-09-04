@@ -35,7 +35,6 @@ class RoutingDroplet extends AbstractDroplet
             ->children()
                 ->arrayNode('providers')
                     ->isRequired()
-                    ->requiresAtLeastOneElement()
                     ->prototype('variable')->end()
                 ->end()
             ->end();
