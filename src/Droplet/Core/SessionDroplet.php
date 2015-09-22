@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Templating\PhpEngine;
 
 /**
  * Class SessionDroplet
@@ -106,7 +107,7 @@ class SessionDroplet extends AbstractDroplet
 
         // add the global variable to access the session from views
         if (isset($container['templating.engine.php'])) {
-            $container->extend('templating.engine.php', function($engine, $c) {
+            $container->extend('templating.engine.php', function(PhpEngine $engine, $c) {
                 $engine->addGlobal('session', $c['session']);
                 return $engine;
             });

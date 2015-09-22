@@ -26,7 +26,7 @@ class ApplicationSpec extends ObjectBehavior
 
     function it_should_return_the_correct_root_dir()
     {
-        $this->getRootDir()->shouldEndWith('/droplet-framework/spec');
+        $this->getRootDir()->shouldEndWith('/spec');
     }
 
     function its_name_should_be_MyApp_by_default()

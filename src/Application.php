@@ -10,7 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class Application
- * @package Bubble\Component\Application
+ *
+ * @package Framework
  */
 class Application implements ApplicationInterface
 {
