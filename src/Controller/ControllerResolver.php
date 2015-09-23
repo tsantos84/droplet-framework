@@ -30,7 +30,7 @@ class ControllerResolver extends BaseControllerResolver
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getController(Request $request)
     {

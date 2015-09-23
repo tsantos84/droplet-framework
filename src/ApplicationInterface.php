@@ -3,6 +3,7 @@
 namespace Framework;
 
 use Framework\Droplet\DropletInterface;
+use Pimple\Container;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
