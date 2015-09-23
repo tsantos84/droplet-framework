@@ -104,7 +104,7 @@ class Application implements ApplicationInterface
         }
 
         $this->registerDroplets();
-        $this->resolveDroplet();
+        $this->resolveDroplets();
         $this->buildContainer();
 
         $this->configured = true;
@@ -210,48 +210,49 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * @param null $droplet
+     * @return void
      */
-    protected function resolveDroplet($droplet = null)
+    protected function resolveDroplets()
+    {
+        foreach ($this->droplets as $droplet) {
+            $this->resolveDroplet($droplet->getName());
+        }
+    }
+
+    /**
+     * @param string $droplet
+     */
+    protected function resolveDroplet($droplet)
     {
         static $resolved = [];
 
-        if (null === $droplet) {
-
-            foreach ($this->droplets as $droplet) {
-                $this->resolveDroplet($droplet->getName());
-            }
-
-        } else {
-
-            // droplet already resolved
-            if (isset($resolved[ $droplet ])) {
-                return;
-            }
-
-            // droplet not found
-            if (!isset($this->droplets[ $droplet ])) {
-                throw new \InvalidArgumentException(
-                    'Trying to resolve the droplet ' . $droplet . ' that is not registered'
-                );
-            }
-
-            $dependencies = $this->droplets[ $droplet ]->getDependencies();
-
-            foreach ($dependencies as $dependency) {
-
-                // dependency not registered
-                if (!isset($this->droplets[ $dependency ])) {
-                    throw new \RuntimeException(sprintf(
-                        'The droplet %s has a dependency to %s which was not registered on application'
-                    ));
-                }
-
-                $this->resolveDroplet($dependency);
-            }
-
-            $resolved[ $droplet ] = true;
+        // droplet already resolved
+        if (isset($resolved[ $droplet ])) {
+            return;
         }
+
+        // droplet not found
+        if (!isset($this->droplets[ $droplet ])) {
+            throw new \InvalidArgumentException(
+                'Trying to resolve the droplet ' . $droplet . ' that is not registered'
+            );
+        }
+
+        $dependencies = $this->droplets[ $droplet ]->getDependencies();
+
+        foreach ($dependencies as $dependency) {
+
+            // dependency not registered
+            if (!isset($this->droplets[ $dependency ])) {
+                throw new \RuntimeException(sprintf(
+                    'The droplet %s has a dependency to %s which was not registered on application'
+                ));
+            }
+
+            $this->resolveDroplet($dependency);
+        }
+
+        $resolved[ $droplet ] = true;
     }
 
     /**
